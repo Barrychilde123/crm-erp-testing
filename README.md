@@ -1,3 +1,4 @@
+
 # CRM/ERP 测试实战：Flask + SQLite 测试靶场
 
 一个可运行的轻量级 **CRM/ERP 系统** + 一套完整测试体系：功能用例、接口测试、UI 自动化、性能压测、缺陷分析与测试报告。
@@ -168,13 +169,17 @@ jmeter -n -t perf/sales_order_load_test.jmx \
 5. **性能有数据**：登录、查询、创建三类场景的 TPS/P95/错误率，能解释瓶颈来源（密码哈希、SQLite 单机写锁）。
 
 ## 10. 系统截图 & 测试报告说明
-由于本地环境限制，部分系统界面和测试报告未直接上传截图。
+<img width="1416" height="861" alt="02-customers" src="https://github.com/user-attachments/assets/78def734-fe21-46d5-a728-73636be25d1e" />
+<img width="1416" height="861" alt="01-dashboard" src="https://github.com/user-attachments/assets/0ecb5ff2-eee8-45ab-a74a-c3c2f8229425" />
+<img width="1416" height="861" alt="00-login" src="https://github.com/user-attachments/assets/4730e160-c32c-460c-8bcc-5212cb7b6799" />
+<img width="1416" height="861" alt="04-products" src="https://github.com/user-attachments/assets/faee8354-bc14-4b65-afea-f448435b945a" />
 本项目已实现以下模块的 UI 自动化与接口自动化：
 - 登录模块验证
 - CRM客户管理（增删改查）
 - ERP订单流转及库存扣减
 - 接口联调与 Postman 集合
-（注：完整测试用例、测试计划、缺陷报告均在 docs/ 目录下，Allure 与 JMeter 报告生成逻辑见 ui/ 和 perf/ 目录）
+（注：完整测试用例、测试计划、缺陷报告均在 docs/ 目录下，Allure 与 JMeter 报告生成逻辑<img width="1416" height="861" alt="03-opportunities" src="https://github.com/user-attachments/assets/d593420e-15dd-48f0-b25e-27123aead615" />
+见 ui/ 和 perf/ 目录）
 
 ## 11. 已知限制
 
