@@ -1,0 +1,383 @@
+{
+  "info": {
+    "name": "CRM/ERP API Tests",
+    "description": "基于 Postman/Newman 的 CRM/ERP 测试靶场接口测试：登录、客户、产品、销售订单、采购订单、库存、权限与多租户隔离。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "customerId", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "salesOrderId", "value": "" },
+    { "key": "purchaseOrderId", "value": "" },
+    { "key": "tenantBId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 基础与登录",
+      "item": [
+        {
+          "name": "Health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('status up', () => pm.expect(pm.response.json().data.status).to.eql('up'));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Login - admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"{{adminUser}}\",\"password\":\"{{adminPass}}\"}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/login"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('code=0', () => pm.expect(j.code).to.eql(0));",
+              "pm.test('role=admin', () => pm.expect(j.data.user.role).to.eql('admin'));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Login - wrong password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"wrong\"}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/login"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('401', () => pm.response.to.have.status(401));",
+              "pm.test('code=401', () => pm.expect(pm.response.json().code).to.eql(401));"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 客户",
+      "item": [
+        {
+          "name": "Create customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"name\":\"QA-PM-{{$timestamp}}\",\"contact\":\"Postman\",\"phone\":\"13800001111\"}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/customers"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('201', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('code=0', () => pm.expect(j.code).to.eql(0));",
+              "pm.collectionVariables.set('customerId', j.data.id);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Get customer",
+          "request": { "method": "GET", "url": "{{baseUrl}}/customers/{{customerId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "pm.test('name prefix', () => pm.expect(pm.response.json().data.name).to.include('QA-PM-'));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Update customer",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"phone\":\"13911112222\"}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/customers/{{customerId}}"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "pm.test('code=0', () => pm.expect(pm.response.json().code).to.eql(0));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Search customer",
+          "request": { "method": "GET", "url": "{{baseUrl}}/customers?q=QA-PM" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "pm.test('has items', () => pm.expect(pm.response.json().data.items.length).to.be.above(0));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Customer name required",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"phone\":\"13800001111\"}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/customers"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 产品",
+      "item": [
+        {
+          "name": "Create product",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"sku\":\"QA-PM-{{$timestamp}}\",\"name\":\"QA-PM 产品\",\"category\":\"接口测试\",\"price\":100,\"cost\":60,\"stock\":10,\"safety_stock\":2}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/products"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('201', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('code=0', () => pm.expect(j.code).to.eql(0));",
+              "pm.collectionVariables.set('productId', j.data.id);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Negative stock rejected",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"sku\":\"QA-PM-NEG-{{$timestamp}}\",\"name\":\"负库存产品\",\"stock\":-1}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/products"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 销售订单",
+      "item": [
+        {
+          "name": "Create sales order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"customer_id\":{{customerId}},\"items\":[{\"product_id\":{{productId}},\"qty\":2,\"price\":100}]}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/sales-orders"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('201', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('code=0', () => pm.expect(j.code).to.eql(0));",
+              "pm.collectionVariables.set('salesOrderId', j.data.id);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Confirm sales order",
+          "request": { "method": "POST", "url": "{{baseUrl}}/sales-orders/{{salesOrderId}}/confirm" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Ship sales order",
+          "request": { "method": "POST", "url": "{{baseUrl}}/sales-orders/{{salesOrderId}}/ship" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Sales order shipped",
+          "request": { "method": "GET", "url": "{{baseUrl}}/sales-orders/{{salesOrderId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('status shipped', () => pm.expect(j.data.order.status).to.eql('shipped'));",
+              "pm.test('total 200', () => pm.expect(j.data.order.total_amount).to.eql(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Issue invoice",
+          "request": { "method": "POST", "url": "{{baseUrl}}/sales-orders/{{salesOrderId}}/invoice" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('201', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('code=0', () => pm.expect(j.code).to.eql(0));",
+              "pm.collectionVariables.set('invoiceId', j.data.id);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Invoice amount matches order",
+          "request": { "method": "GET", "url": "{{baseUrl}}/sales-orders/{{salesOrderId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('invoice amount 200', () => pm.expect(j.data.invoice.amount).to.eql(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Duplicate invoice rejected",
+          "request": { "method": "POST", "url": "{{baseUrl}}/sales-orders/{{salesOrderId}}/invoice" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 采购订单与库存",
+      "item": [
+        {
+          "name": "Create purchase order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"supplier_id\":1,\"items\":[{\"product_id\":{{productId}},\"qty\":5,\"price\":50}]}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/purchase-orders"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('201', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('code=0', () => pm.expect(j.code).to.eql(0));",
+              "pm.collectionVariables.set('purchaseOrderId', j.data.id);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Confirm purchase order",
+          "request": { "method": "POST", "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}/confirm" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Receive purchase order",
+          "request": { "method": "POST", "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}/receive" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Inventory stock after receive",
+          "request": { "method": "GET", "url": "{{baseUrl}}/inventory" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "const pid = Number(pm.collectionVariables.get('productId'));",
+              "const item = j.data.items.find(i => i.id === pid);",
+              "pm.test('stock=13', () => pm.expect(item.stock).to.eql(13));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Duplicate receive rejected",
+          "request": { "method": "POST", "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}/receive" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 权限与多租户",
+      "item": [
+        {
+          "name": "Login - tenant B",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"{{tenantBUser}}\",\"password\":\"{{tenantBPass}}\"}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/login"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('tenant B', () => pm.expect(j.data.tenant.code).to.eql('YH'));",
+              "pm.collectionVariables.set('tenantBId', j.data.tenant.id);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Tenant B customers isolated",
+          "request": { "method": "GET", "url": "{{baseUrl}}/customers" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "const items = pm.response.json().data.items;",
+              "const tid = Number(pm.collectionVariables.get('tenantBId'));",
+              "pm.test('all tenant B', () => pm.expect(items.every(i => i.tenant_id === tid)).to.be.true);",
+              "pm.test('has seeded tenant B customer', () => pm.expect(items.some(i => i.name.startsWith('远航'))).to.be.true);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Tenant B cannot read A customer",
+          "request": { "method": "GET", "url": "{{baseUrl}}/customers/{{customerId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('404', () => pm.response.to.have.status(404));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Restore admin session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"{{adminUser}}\",\"password\":\"{{adminPass}}\"}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/login"
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Archive test customer",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/customers/{{customerId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));"
+            ] } }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "macros.html" import page_head %}
+{% block title %}权限矩阵 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}SaaS 管理 / 权限矩阵{% endblock %}
+{% block content %}
+{% call page_head('权限矩阵', '按角色控制菜单与数据访问范围，用于验证越权访问') %}
+{% endcall %}
+<div class="card">
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr><th>功能模块</th><th>管理员</th><th>销售</th><th>仓管</th><th>财务</th></tr>
+      </thead>
+      <tbody>
+        {% for row in matrix %}
+        <tr>
+          <td class="strong">{{ row[0] }}</td>
+          {% for cell in row[1:] %}
+          <td>
+            {% if cell == '✓' %}<span class="badge badge-success">可操作</span>
+            {% elif cell == '查看' %}<span class="badge badge-primary">只读</span>
+            {% else %}<span class="badge badge-gray">无权限</span>{% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="form-hint" style="margin-top:14px;">说明：本测试靶场在页面层按角色隐藏菜单；接口层对关键操作做了角色校验，可用于验证越权场景。</div>
+</div>
+{% endblock %}

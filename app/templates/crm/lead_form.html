@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑线索' if lead else '新建线索' }} · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}CRM / 线索管理 / {{ '编辑线索' if lead else '新建线索' }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ '编辑线索' if lead else '新建线索' }}</h1>
+    <div class="page-sub">录入潜在客户信息，后续可一键转化为客户与商机</div>
+  </div>
+</div>
+<div class="card form-card">
+  <form method="post">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>线索名称<span class="req">*</span></label>
+        <input class="form-control" name="name" value="{{ lead.name if lead else '' }}" placeholder="例如：华东区智能仓储项目" required>
+      </div>
+      <div class="form-group">
+        <label>联系人</label>
+        <input class="form-control" name="contact" value="{{ lead.contact if lead else '' }}">
+      </div>
+      <div class="form-group">
+        <label>电话</label>
+        <input class="form-control" name="phone" value="{{ lead.phone if lead else '' }}">
+      </div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <input class="form-control" name="email" type="email" value="{{ lead.email if lead else '' }}">
+      </div>
+      <div class="form-group">
+        <label>来源</label>
+        <select class="form-control" name="source">
+          {% for s in ['官网', '展会', '转介绍', '电话营销', '广告投放', '其他'] %}
+          <option value="{{ s }}" {{ 'selected' if lead and lead.source == s }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>状态</label>
+        <select class="form-control" name="status">
+          {% for s in ['new', 'contacted', 'qualified', 'converted', 'lost'] %}
+          <option value="{{ s }}" {{ 'selected' if lead and lead.status == s }}>{{ s|status_text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>负责人</label>
+        <select class="form-control" name="owner_id">
+          <option value="">未分配</option>
+          {% for u in owners %}
+          <option value="{{ u.id }}" {{ 'selected' if lead and lead.owner_id == u.id }}>{{ u.full_name }}（{{ u.role|role_text }}）</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">保存</button>
+      <a class="btn btn-secondary" href="{{ url_for('crm.leads') }}">取消</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

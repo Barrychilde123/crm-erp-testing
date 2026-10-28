@@ -1,0 +1,17 @@
+{% macro badge(status) -%}
+<span class="badge badge-{{ status|status_class }}">{{ status|status_text }}</span>
+{%- endmacro %}
+
+{% macro empty(text='暂无数据') -%}
+<div class="empty"><div class="big">◇</div>{{ text }}</div>
+{%- endmacro %}
+
+{% macro page_head(title, subtitle='') -%}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    {% if subtitle %}<div class="page-sub">{{ subtitle }}</div>{% endif %}
+  </div>
+  <div class="page-actions">{{ caller() }}</div>
+</div>
+{%- endmacro %}

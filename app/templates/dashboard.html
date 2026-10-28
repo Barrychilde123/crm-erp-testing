@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge %}
+{% block title %}仪表盘 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}工作台 / 仪表盘{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <div>
+    <h1 class="page-title">仪表盘</h1>
+    <div class="page-sub">当前租户：{{ current_tenant.name }} · 欢迎回来，{{ current_user.full_name }}</div>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="{{ url_for('crm.customer_new') }}">+ 新建客户</a>
+    <a class="btn btn-primary" href="{{ url_for('erp.sales_order_new') }}">+ 新建销售订单</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="kpi-label">活跃客户</div>
+    <div class="kpi-value">{{ stats.customers }}<small>家</small></div>
+    <div class="kpi-foot">当前租户合作中的客户</div>
+  </div>
+  <div class="kpi green">
+    <div class="kpi-label">在跟进商机金额</div>
+    <div class="kpi-value">¥{{ stats.open_opps|money }}</div>
+    <div class="kpi-foot">不含赢单 / 输单</div>
+  </div>
+  <div class="kpi amber">
+    <div class="kpi-label">待处理采购单</div>
+    <div class="kpi-value">{{ stats.pending_pos }}<small>单</small></div>
+    <div class="kpi-foot">草稿 + 已确认</div>
+  </div>
+  <div class="kpi red">
+    <div class="kpi-label">低库存产品</div>
+    <div class="kpi-value">{{ stats.low_stock }}<small>个</small></div>
+    <div class="kpi-foot">库存 ≤ 安全库存</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">本月已发货金额</div>
+    <div class="kpi-value">¥{{ stats.month_sales|money }}</div>
+    <div class="kpi-foot">按发货时间统计</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">商机管道</div>
+        <div class="card-sub">按阶段统计商机数量与金额</div>
+      </div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('crm.opportunities') }}">查看管道 →</a>
+    </div>
+    {% for p in pipeline %}
+    <div class="stage-row">
+      <div class="stage-name">{{ p.label }}</div>
+      <div class="stage-bar"><div style="width: {{ p.pct }}%"></div></div>
+      <div class="stage-meta">{{ p.count }} 个 · ¥{{ p.amount|money }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">低库存预警</div>
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('erp.inventory') }}">库存管理 →</a>
+      </div>
+      {% if low_stock_products %}
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>产品</th><th class="num">库存</th><th class="num">安全库存</th></tr></thead>
+          <tbody>
+            {% for p in low_stock_products %}
+            <tr>
+              <td><div class="strong">{{ p.name }}</div><div class="sub">{{ p.sku }}</div></td>
+              <td class="num"><span class="badge badge-danger">{{ p.stock }}</span></td>
+              <td class="num">{{ p.safety_stock }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty"><div class="big">✓</div>暂无低库存产品</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">最近库存动态</div></div>
+      {% if activity %}
+      <table class="data">
+        <tbody>
+          {% for m in activity %}
+          <tr>
+            <td>
+              <span class="badge badge-{{ 'success' if m.move_type == 'in' else ('danger' if m.move_type == 'out' else 'warning') }}">
+                {{ '入库' if m.move_type == 'in' else ('出库' if m.move_type == 'out' else '调整') }}
+              </span>
+            </td>
+            <td><div class="strong">{{ m.product_name }}</div><div class="sub">{{ m.ref_no or '-' }}</div></td>
+            <td class="num">{{ '+' if m.qty > 0 else '' }}{{ m.qty }}</td>
+            <td class="sub">{{ m.created_at|date }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">暂无库存动态</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-top:18px;">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">最近销售订单</div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('erp.sales_orders') }}">全部 →</a>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>订单号</th><th>客户</th><th class="num">金额</th><th>状态</th></tr></thead>
+        <tbody>
+          {% for so in recent_sales %}
+          <tr>
+            <td><a href="{{ url_for('erp.sales_order_detail', so_id=so.id) }}">{{ so.so_no }}</a></td>
+            <td>{{ so.customer_name }}</td>
+            <td class="num">¥{{ so.total_amount|money }}</td>
+            <td>{{ badge(so.status) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4"><div class="empty">暂无销售订单</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">最近采购订单</div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('erp.purchase_orders') }}">全部 →</a>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>订单号</th><th>供应商</th><th class="num">金额</th><th>状态</th></tr></thead>
+        <tbody>
+          {% for po in recent_pos %}
+          <tr>
+            <td><a href="{{ url_for('erp.purchase_order_detail', po_id=po.id) }}">{{ po.po_no }}</a></td>
+            <td>{{ po.supplier_name }}</td>
+            <td class="num">¥{{ po.total_amount|money }}</td>
+            <td>{{ badge(po.status) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4"><div class="empty">暂无采购订单</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

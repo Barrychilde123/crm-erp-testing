@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "macros.html" import page_head %}
+{% block title %}商机管道 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}CRM / 商机管道{% endblock %}
+{% block content %}
+{% call page_head('商机管道', '共 ' ~ total ~ ' 个商机，按阶段查看销售进展') %}
+  <form class="search-form" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="搜索商机 / 客户">
+    <button class="btn btn-secondary" type="submit">搜索</button>
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('crm.opportunity_new') }}">+ 新建商机</a>
+{% endcall %}
+
+<div class="pipeline">
+  {% for key, label in stages %}
+  <div class="pipeline-col">
+    <div class="pipeline-col-head">
+      <div class="pipeline-col-title">{{ label }}</div>
+      <div class="pipeline-col-count">{{ board[key]|length }}</div>
+    </div>
+    {% for o in board[key] %}
+    <a class="pipeline-card" href="{{ url_for('crm.opportunity_edit', oid=o.id) }}" style="display:block;color:inherit;">
+      <div class="name">{{ o.name }}</div>
+      <div class="meta">{{ o.customer_name }} · {{ o.owner_name or '未分配' }}</div>
+      <div class="amount">¥{{ o.amount|money }}</div>
+      {% if o.expected_date %}<div class="meta">预计 {{ o.expected_date }}</div>{% endif %}
+    </a>
+    {% else %}
+    <div class="pipeline-empty">暂无商机</div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

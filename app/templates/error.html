@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}错误{% endblock %}
+{% block content %}
+<div class="card error-card">
+  <div class="error-code">{{ code }}</div>
+  <div class="error-msg">{{ message }}</div>
+  <a class="btn btn-primary" href="{{ url_for('dashboard') }}">返回仪表盘</a>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge %}
+{% block title %}{{ so.so_no }} · 销售订单 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 销售订单 / 详情{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ so.so_no }} {{ badge(so.status) }}</h1>
+    <div class="page-sub">销售订单详情 · 创建于 {{ so.created_at|date }}</div>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="{{ url_for('erp.sales_orders') }}">返回列表</a>
+    {% if so.status == 'draft' %}
+    <form method="post" action="{{ url_for('erp.sales_order_confirm', so_id=so.id) }}" style="display:inline;">
+      <button class="btn btn-primary" type="submit">确认订单</button>
+    </form>
+    {% elif so.status == 'confirmed' %}
+    <form method="post" action="{{ url_for('erp.sales_order_ship', so_id=so.id) }}" style="display:inline;" onsubmit="return confirm('确认发货？发货后库存将扣减。')">
+      <button class="btn btn-primary" type="submit">发货出库</button>
+    </form>
+    {% elif so.status == 'shipped' %}
+      {% if invoice %}
+      <span class="badge badge-success">已开票 {{ invoice.invoice_no }}</span>
+      {% else %}
+      <form method="post" action="{{ url_for('erp.sales_order_invoice', so_id=so.id) }}" style="display:inline;">
+        <button class="btn btn-primary" type="submit">开具发票</button>
+      </form>
+      {% endif %}
+    {% endif %}
+    {% if so.status in ['draft', 'confirmed'] %}
+    <form method="post" action="{{ url_for('erp.sales_order_cancel', so_id=so.id) }}" style="display:inline;" onsubmit="return confirm('确认取消该销售订单？')">
+      <button class="btn btn-danger" type="submit">取消订单</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="info-grid">
+    <div class="info-item"><div class="label">客户</div><div class="value">{{ so.customer_name }}</div></div>
+    <div class="info-item"><div class="label">客户联系人</div><div class="value">{{ so.customer_contact or '-' }}</div></div>
+    <div class="info-item"><div class="label">客户电话</div><div class="value">{{ so.customer_phone or '-' }}</div></div>
+    <div class="info-item"><div class="label">创建人</div><div class="value">{{ so.creator_name or '-' }}</div></div>
+    <div class="info-item"><div class="label">创建时间</div><div class="value">{{ so.created_at|date }}</div></div>
+    <div class="info-item"><div class="label">发货时间</div><div class="value">{{ (so.shipped_at|date) if so.shipped_at else '-' }}</div></div>
+  </div>
+</div>
+
+{% if invoice %}
+<div class="card">
+  <div class="card-head">
+    <div class="card-title">发票信息</div>
+    <span class="badge badge-success">已开票</span>
+  </div>
+  <div class="info-grid">
+    <div class="info-item"><div class="label">发票号</div><div class="value">{{ invoice.invoice_no }}</div></div>
+    <div class="info-item"><div class="label">开票金额</div><div class="value">¥{{ invoice.amount|money }}</div></div>
+    <div class="info-item"><div class="label">开票时间</div><div class="value">{{ invoice.created_at|date }}</div></div>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-head"><div class="card-title">销售明细</div></div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>产品</th><th>SKU</th><th class="num">数量</th><th class="num">单价</th><th class="num">小计</th></tr></thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td class="strong">{{ item.product_name }}</td>
+          <td class="sub">{{ item.sku }}</td>
+          <td class="num">{{ item.qty }}</td>
+          <td class="num">¥{{ item.price|money }}</td>
+          <td class="num">¥{{ (item.qty * item.price)|money }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><td colspan="4" class="num strong">合计</td><td class="num strong" style="color:var(--blue);">¥{{ so.total_amount|money }}</td></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endblock %}

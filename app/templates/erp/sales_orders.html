@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge, empty, page_head %}
+{% block title %}销售订单 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 销售订单{% endblock %}
+{% block content %}
+{% call page_head('销售订单', '从报价、确认到发货出库的完整销售链路') %}
+  <form class="search-form" method="get">
+    <select class="form-control" name="status">
+      <option value="">全部状态</option>
+      {% for s in ['draft', 'confirmed', 'shipped', 'cancelled'] %}
+      <option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|status_text }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-secondary" type="submit">筛选</button>
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('erp.sales_order_new') }}">+ 新建销售订单</a>
+{% endcall %}
+<div class="card">
+  {% if orders %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>销售单号</th><th>客户</th><th class="num">金额</th><th>状态</th><th>创建时间</th><th style="width:90px;">操作</th></tr></thead>
+      <tbody>
+        {% for so in orders %}
+        <tr>
+          <td><a class="strong" href="{{ url_for('erp.sales_order_detail', so_id=so.id) }}">{{ so.so_no }}</a></td>
+          <td>{{ so.customer_name }}</td>
+          <td class="num">¥{{ so.total_amount|money }}</td>
+          <td>{{ badge(so.status) }}</td>
+          <td class="sub">{{ so.created_at|date }}</td>
+          <td><a class="btn btn-ghost btn-sm" href="{{ url_for('erp.sales_order_detail', so_id=so.id) }}">查看</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无销售订单') }}
+  {% endif %}
+</div>
+{% endblock %}

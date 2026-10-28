@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge, empty, page_head %}
+{% block title %}采购订单 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 采购订单{% endblock %}
+{% block content %}
+{% call page_head('采购订单', '从询价、确认到收货入库的完整采购链路') %}
+  <form class="search-form" method="get">
+    <select class="form-control" name="status">
+      <option value="">全部状态</option>
+      {% for s in ['draft', 'confirmed', 'received', 'cancelled'] %}
+      <option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|status_text }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-secondary" type="submit">筛选</button>
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('erp.purchase_order_new') }}">+ 新建采购订单</a>
+{% endcall %}
+<div class="card">
+  {% if orders %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>采购单号</th><th>供应商</th><th class="num">金额</th><th>状态</th><th>创建时间</th><th style="width:90px;">操作</th></tr></thead>
+      <tbody>
+        {% for po in orders %}
+        <tr>
+          <td><a class="strong" href="{{ url_for('erp.purchase_order_detail', po_id=po.id) }}">{{ po.po_no }}</a></td>
+          <td>{{ po.supplier_name }}</td>
+          <td class="num">¥{{ po.total_amount|money }}</td>
+          <td>{{ badge(po.status) }}</td>
+          <td class="sub">{{ po.created_at|date }}</td>
+          <td><a class="btn btn-ghost btn-sm" href="{{ url_for('erp.purchase_order_detail', po_id=po.id) }}">查看</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无采购订单') }}
+  {% endif %}
+</div>
+{% endblock %}

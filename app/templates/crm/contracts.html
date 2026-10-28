@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge, empty, page_head %}
+{% block title %}合同管理 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}CRM / 合同管理{% endblock %}
+{% block content %}
+{% call page_head('合同管理', '记录客户合同金额、签署状态与日期') %}
+  <a class="btn btn-primary" href="{{ url_for('crm.contract_new') }}">+ 新建合同</a>
+{% endcall %}
+<div class="card">
+  {% if contracts %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>合同编号</th><th>客户</th><th class="num">金额</th><th>状态</th><th>签署日期</th><th>创建时间</th></tr></thead>
+      <tbody>
+        {% for ct in contracts %}
+        <tr>
+          <td class="strong">{{ ct.contract_no }}</td>
+          <td>{{ ct.customer_name }}</td>
+          <td class="num">¥{{ ct.amount|money }}</td>
+          <td>{{ badge(ct.status) }}</td>
+          <td class="sub">{{ ct.sign_date or '-' }}</td>
+          <td class="sub">{{ ct.created_at|date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无合同记录') }}
+  {% endif %}
+</div>
+{% endblock %}

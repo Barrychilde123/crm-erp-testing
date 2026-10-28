@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "macros.html" import empty, page_head %}
+{% block title %}租户管理 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}SaaS 管理 / 租户管理{% endblock %}
+{% block content %}
+{% call page_head('租户管理', '多租户隔离：不同租户的数据、用户与角色相互独立') %}
+{% endcall %}
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><div class="card-title">租户列表</div></div>
+    {% if tenants %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>租户名称</th><th>编码</th><th class="num">用户</th><th class="num">客户</th><th>创建时间</th><th style="width:100px;">操作</th></tr></thead>
+        <tbody>
+          {% for t in tenants %}
+          <tr>
+            <td class="strong">{{ t.name }} {% if current_tenant and t.id == current_tenant.id %}<span class="badge badge-primary">当前</span>{% endif %}</td>
+            <td class="sub">{{ t.code }}</td>
+            <td class="num">{{ t.user_count }}</td>
+            <td class="num">{{ t.customer_count }}</td>
+            <td class="sub">{{ t.created_at|date }}</td>
+            <td>
+              {% if not current_tenant or t.id != current_tenant.id %}
+              <a class="btn btn-ghost btn-sm" href="{{ url_for('switch_tenant', tid=t.id) }}">切换</a>
+              {% else %}
+              <span class="sub">使用中</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    {{ empty('暂无租户') }}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">新建租户</div></div>
+    <form method="post">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>租户名称<span class="req">*</span></label>
+          <input class="form-control" name="name" placeholder="例如：星河科技" required>
+        </div>
+        <div class="form-group">
+          <label>租户编码<span class="req">*</span></label>
+          <input class="form-control" name="code" placeholder="例如：XINGHE" required>
+        </div>
+        <div class="form-group">
+          <label>管理员姓名</label>
+          <input class="form-control" name="full_name" placeholder="例如：张三">
+        </div>
+        <div class="form-group">
+          <label>管理员账号<span class="req">*</span></label>
+          <input class="form-control" name="admin_username" placeholder="例如：admin_xh" required>
+        </div>
+        <div class="form-group">
+          <label>管理员密码<span class="req">*</span></label>
+          <input class="form-control" name="admin_password" type="password" placeholder="初始密码" required>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">创建租户</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "macros.html" import empty, page_head %}
+{% block title %}发票管理 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 发票管理{% endblock %}
+{% block content %}
+{% call page_head('发票管理', '销售订单发货后可开具发票，金额与订单总额保持一致') %}
+{% endcall %}
+<div class="card">
+  {% if invoices %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>发票号</th><th>销售订单</th><th>客户</th><th class="num">金额</th><th>状态</th><th>开票时间</th></tr></thead>
+      <tbody>
+        {% for inv in invoices %}
+        <tr>
+          <td class="strong">{{ inv.invoice_no }}</td>
+          <td><a href="{{ url_for('erp.sales_order_detail', so_id=inv.sales_order_id) }}">{{ inv.so_no }}</a></td>
+          <td>{{ inv.customer_name }}</td>
+          <td class="num">¥{{ inv.amount|money }}</td>
+          <td><span class="badge badge-success">已开票</span></td>
+          <td class="sub">{{ inv.created_at|date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无发票，销售订单发货后可开具') }}
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# 测试运行产物（保留 HTML 报告，忽略原始结果）
+reports/ui/allure-results/
+reports/perf/*.jtl
+reports/perf/*.log
+reports/api/newman-*.json
+
+# SQLite 运行时数据库
+instance/
+app/instance/
+*.sqlite
+*.sqlite-*
+
+# 系统文件
+Thumbs.db
+.DS_Store

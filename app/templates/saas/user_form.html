@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}新建用户 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}SaaS 管理 / 用户与角色 / 新建用户{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">新建用户</h1>
+    <div class="page-sub">为当前租户创建账号并分配角色</div>
+  </div>
+</div>
+<div class="card form-card">
+  <form method="post">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>账号<span class="req">*</span></label>
+        <input class="form-control" name="username" placeholder="例如：sales02" required>
+      </div>
+      <div class="form-group">
+        <label>姓名<span class="req">*</span></label>
+        <input class="form-control" name="full_name" placeholder="例如：李四" required>
+      </div>
+      <div class="form-group">
+        <label>初始密码<span class="req">*</span></label>
+        <input class="form-control" name="password" type="password" required>
+      </div>
+      <div class="form-group">
+        <label>角色</label>
+        <select class="form-control" name="role">
+          {% for key, label in roles.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">创建用户</button>
+      <a class="btn btn-secondary" href="{{ url_for('saas.users') }}">取消</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

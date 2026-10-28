@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge, empty, page_head %}
+{% block title %}客户管理 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}CRM / 客户管理{% endblock %}
+{% block content %}
+{% call page_head('客户管理', '维护客户档案、负责人与合作状态') %}
+  <form class="search-form" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="搜索客户 / 联系人 / 电话">
+    <select class="form-control" name="status">
+      <option value="">全部状态</option>
+      <option value="active" {{ 'selected' if status == 'active' }}>合作中</option>
+      <option value="inactive" {{ 'selected' if status == 'inactive' }}>已归档</option>
+    </select>
+    <button class="btn btn-secondary" type="submit">搜索</button>
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('crm.customer_new') }}">+ 新建客户</a>
+{% endcall %}
+
+<div class="card">
+  {% if customers %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>客户名称</th><th>联系人</th><th>电话</th><th>等级</th>
+          <th>负责人</th><th>状态</th><th>创建时间</th><th style="width:150px;">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in customers %}
+        <tr>
+          <td><a class="strong" href="{{ url_for('crm.customer_detail', cid=c.id) }}">{{ c.name }}</a></td>
+          <td>{{ c.contact or '-' }}</td>
+          <td>{{ c.phone or '-' }}</td>
+          <td><span class="badge badge-{{ 'warning' if c.level == '重要' else ('primary' if c.level == '战略' else 'gray') }}">{{ c.level }}</span></td>
+          <td>{{ c.owner_name or '-' }}</td>
+          <td>{{ badge(c.status) }}</td>
+          <td class="sub">{{ c.created_at|date }}</td>
+          <td>
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('crm.customer_edit', cid=c.id) }}">编辑</a>
+            {% if c.status == 'active' %}
+            <form method="post" action="{{ url_for('crm.customer_archive', cid=c.id) }}" style="display:inline;" onsubmit="return confirm('确认归档该客户？')">
+              <button class="btn btn-ghost btn-sm" type="submit">归档</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('没有找到客户，试试调整搜索条件或新建客户') }}
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% from "macros.html" import empty, page_head %}
+{% block title %}库存管理 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 库存管理{% endblock %}
+{% block content %}
+{% call page_head('库存管理', '查看产品库存、安全库存与库存流水') %}
+  <form class="search-form" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="搜索产品 / SKU">
+    <button class="btn btn-secondary" type="submit">搜索</button>
+  </form>
+{% endcall %}
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><div class="card-title">库存调整</div></div>
+    <form method="post" action="{{ url_for('erp.inventory_adjust') }}">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>产品<span class="req">*</span></label>
+          <select class="form-control" name="product_id" required>
+            <option value="">请选择产品</option>
+            {% for p in products %}<option value="{{ p.id }}">{{ p.name }}（{{ p.sku }}）· 当前 {{ p.stock }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>调整数量<span class="req">*</span></label>
+          <input class="form-control" name="qty_delta" type="number" placeholder="正数入库，负数出库" required>
+        </div>
+        <div class="form-group">
+          <label>调整原因</label>
+          <input class="form-control" name="note" placeholder="盘点差异 / 样品领用">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">提交调整</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">库存概览</div></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="label">产品总数</div><div class="value">{{ products|length }}</div></div>
+      <div class="info-item"><div class="label">低库存产品</div><div class="value">{{ low_stock_count }}</div></div>
+      <div class="info-item"><div class="label">库存总量</div><div class="value">{{ total_stock }}</div></div>
+    </div>
+    <div class="form-hint" style="margin-top:14px;">库存调整会写入库存流水，便于追溯；销售发货和采购收货也会自动生成流水。</div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+  <div class="card-head"><div class="card-title">产品库存</div></div>
+  {% if products %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>SKU</th><th>产品名称</th><th class="num">库存</th><th class="num">安全库存</th><th>状态</th><th class="num">售价</th></tr></thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td class="sub">{{ p.sku }}</td>
+          <td class="strong">{{ p.name }}</td>
+          <td class="num"><span class="badge badge-{{ 'danger' if p.stock <= p.safety_stock else 'success' }}">{{ p.stock }}</span></td>
+          <td class="num">{{ p.safety_stock }}</td>
+          <td>
+            {% if p.stock <= p.safety_stock %}<span class="badge badge-danger">低库存</span>
+            {% elif p.stock <= p.safety_stock * 2 %}<span class="badge badge-warning">偏低</span>
+            {% else %}<span class="badge badge-success">正常</span>{% endif %}
+          </td>
+          <td class="num">¥{{ p.price|money }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无产品库存') }}
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-head"><div class="card-title">库存流水（最近 30 条）</div></div>
+  {% if moves %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>时间</th><th>产品</th><th>类型</th><th class="num">数量</th><th>关联单号</th><th>备注</th></tr></thead>
+      <tbody>
+        {% for m in moves %}
+        <tr>
+          <td class="sub">{{ m.created_at|date }}</td>
+          <td>{{ m.product_name }}<div class="sub">{{ m.sku }}</div></td>
+          <td>
+            <span class="badge badge-{{ 'success' if m.move_type == 'in' else ('danger' if m.move_type == 'out' else 'warning') }}">
+              {{ '入库' if m.move_type == 'in' else ('出库' if m.move_type == 'out' else '调整') }}
+            </span>
+          </td>
+          <td class="num">{{ '+' if m.qty > 0 else '' }}{{ m.qty }}</td>
+          <td class="sub">{{ m.ref_no or '-' }}</td>
+          <td class="sub">{{ m.note or '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无库存流水') }}
+  {% endif %}
+</div>
+{% endblock %}

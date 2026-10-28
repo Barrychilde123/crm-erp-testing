@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑客户' if customer else '新建客户' }} · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}CRM / 客户管理 / {{ '编辑客户' if customer else '新建客户' }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ '编辑客户' if customer else '新建客户' }}</h1>
+    <div class="page-sub">{{ '更新客户档案与负责人' if customer else '录入客户基础信息，带 * 为必填项' }}</div>
+  </div>
+</div>
+
+<div class="card form-card">
+  <form method="post">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>客户名称<span class="req">*</span></label>
+        <input class="form-control" name="name" value="{{ customer.name if customer else '' }}" placeholder="例如：启明科技有限公司" required>
+      </div>
+      <div class="form-group">
+        <label>联系人</label>
+        <input class="form-control" name="contact" value="{{ customer.contact if customer else '' }}" placeholder="联系人姓名">
+      </div>
+      <div class="form-group">
+        <label>电话</label>
+        <input class="form-control" name="phone" value="{{ customer.phone if customer else '' }}" placeholder="手机号或座机">
+      </div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <input class="form-control" name="email" type="email" value="{{ customer.email if customer else '' }}" placeholder="name@example.com">
+      </div>
+      <div class="form-group">
+        <label>客户等级</label>
+        <select class="form-control" name="level">
+          {% for level in ['普通', '重要', '战略'] %}
+          <option value="{{ level }}" {{ 'selected' if customer and customer.level == level }}>{{ level }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>状态</label>
+        <select class="form-control" name="status">
+          <option value="active" {{ 'selected' if not customer or customer.status == 'active' }}>合作中</option>
+          <option value="inactive" {{ 'selected' if customer and customer.status == 'inactive' }}>已归档</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>负责人</label>
+        <select class="form-control" name="owner_id">
+          <option value="">未分配</option>
+          {% for u in owners %}
+          <option value="{{ u.id }}" {{ 'selected' if customer and customer.owner_id == u.id }}>{{ u.full_name }}（{{ u.role|role_text }}）</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">保存</button>
+      <a class="btn btn-secondary" href="{{ url_for('crm.customers') }}">取消</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

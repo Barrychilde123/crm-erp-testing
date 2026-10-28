@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "macros.html" import empty, page_head %}
+{% block title %}供应商 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 供应商{% endblock %}
+{% block content %}
+{% call page_head('供应商管理', '维护供应商联系人与采购来源') %}
+  <form class="search-form" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="搜索供应商 / 联系人 / 电话">
+    <button class="btn btn-secondary" type="submit">搜索</button>
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('erp.supplier_new') }}">+ 新建供应商</a>
+{% endcall %}
+<div class="card">
+  {% if suppliers %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>供应商名称</th><th>联系人</th><th>电话</th><th>邮箱</th><th>创建时间</th><th style="width:90px;">操作</th></tr></thead>
+      <tbody>
+        {% for s in suppliers %}
+        <tr>
+          <td class="strong">{{ s.name }}</td>
+          <td>{{ s.contact or '-' }}</td>
+          <td>{{ s.phone or '-' }}</td>
+          <td>{{ s.email or '-' }}</td>
+          <td class="sub">{{ s.created_at|date }}</td>
+          <td><a class="btn btn-ghost btn-sm" href="{{ url_for('erp.supplier_edit', sid=s.id) }}">编辑</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无供应商') }}
+  {% endif %}
+</div>
+{% endblock %}

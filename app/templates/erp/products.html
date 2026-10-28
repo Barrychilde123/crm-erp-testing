@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "macros.html" import empty, page_head %}
+{% block title %}产品管理 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 产品管理{% endblock %}
+{% block content %}
+{% call page_head('产品管理', '维护产品 SKU、价格、成本与安全库存') %}
+  <form class="search-form" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="搜索产品 / SKU">
+    <select class="form-control" name="category">
+      <option value="">全部分类</option>
+      {% for c in categories %}<option value="{{ c }}" {{ 'selected' if category == c }}>{{ c }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-secondary" type="submit">搜索</button>
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('erp.product_new') }}">+ 新建产品</a>
+{% endcall %}
+
+<div class="card">
+  {% if products %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>SKU</th><th>产品名称</th><th>分类</th><th class="num">售价</th><th class="num">成本</th><th class="num">库存</th><th class="num">安全库存</th><th style="width:90px;">操作</th></tr></thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td class="sub">{{ p.sku }}</td>
+          <td class="strong">{{ p.name }}</td>
+          <td>{{ p.category or '-' }}</td>
+          <td class="num">¥{{ p.price|money }}</td>
+          <td class="num">¥{{ p.cost|money }}</td>
+          <td class="num">
+            <span class="badge badge-{{ 'danger' if p.stock <= p.safety_stock else 'success' }}">{{ p.stock }}</span>
+          </td>
+          <td class="num">{{ p.safety_stock }}</td>
+          <td><a class="btn btn-ghost btn-sm" href="{{ url_for('erp.product_edit', pid=p.id) }}">编辑</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无产品，点击右上角新建') }}
+  {% endif %}
+</div>
+{% endblock %}

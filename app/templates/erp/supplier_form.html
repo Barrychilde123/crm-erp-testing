@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑供应商' if supplier else '新建供应商' }} · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 供应商 / {{ '编辑供应商' if supplier else '新建供应商' }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ '编辑供应商' if supplier else '新建供应商' }}</h1>
+    <div class="page-sub">维护供应商基础信息</div>
+  </div>
+</div>
+<div class="card form-card">
+  <form method="post">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>供应商名称<span class="req">*</span></label>
+        <input class="form-control" name="name" value="{{ supplier.name if supplier else '' }}" required>
+      </div>
+      <div class="form-group">
+        <label>联系人</label>
+        <input class="form-control" name="contact" value="{{ supplier.contact if supplier else '' }}">
+      </div>
+      <div class="form-group">
+        <label>电话</label>
+        <input class="form-control" name="phone" value="{{ supplier.phone if supplier else '' }}">
+      </div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <input class="form-control" name="email" type="email" value="{{ supplier.email if supplier else '' }}">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">保存</button>
+      <a class="btn btn-secondary" href="{{ url_for('erp.suppliers') }}">取消</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

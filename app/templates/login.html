@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登录 · 启明 CRM/ERP</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="login-body">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-mark">Q</div>
+      <div>
+        <div class="login-title">启明 CRM/ERP</div>
+        <div class="login-sub">客户 / 订单 / 库存 / 多租户管理</div>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash flash-{{ 'error' if category == 'error' else category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post">
+      <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+      <div class="form-group">
+        <label for="username">账号</label>
+        <input class="form-control" id="username" name="username" placeholder="请输入账号" autocomplete="username" required>
+      </div>
+      <div class="form-group">
+        <label for="password">密码</label>
+        <input class="form-control" id="password" name="password" type="password" placeholder="请输入密码" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">登 录</button>
+    </form>
+
+    <div class="login-hint">
+      测试账号：<code>admin / admin123</code><br>
+      销售：<code>sales01 / sales123</code> · 仓管：<code>warehouse01 / warehouse123</code> · 财务：<code>finance01 / finance123</code>
+    </div>
+  </div>
+</body>
+</html>

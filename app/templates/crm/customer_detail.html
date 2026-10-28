@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge, empty %}
+{% block title %}{{ customer.name }} · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}CRM / 客户管理 / 客户详情{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ customer.name }} {{ badge(customer.status) }}</h1>
+    <div class="page-sub">客户编号 #{{ customer.id }} · 创建于 {{ customer.created_at|date }}</div>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="{{ url_for('crm.customers') }}">返回列表</a>
+    <a class="btn btn-primary" href="{{ url_for('crm.customer_edit', cid=customer.id) }}">编辑客户</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="info-grid">
+    <div class="info-item"><div class="label">联系人</div><div class="value">{{ customer.contact or '-' }}</div></div>
+    <div class="info-item"><div class="label">电话</div><div class="value">{{ customer.phone or '-' }}</div></div>
+    <div class="info-item"><div class="label">邮箱</div><div class="value">{{ customer.email or '-' }}</div></div>
+    <div class="info-item"><div class="label">客户等级</div><div class="value">{{ customer.level }}</div></div>
+    <div class="info-item"><div class="label">负责人</div><div class="value">{{ customer.owner_name or '未分配' }}</div></div>
+    <div class="info-item"><div class="label">状态</div><div class="value">{{ customer.status|status_text }}</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head"><div class="card-title">商机（{{ opportunities|length }}）</div></div>
+  {% if opportunities %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>商机名称</th><th class="num">金额</th><th>阶段</th><th>预计成交</th></tr></thead>
+      <tbody>
+        {% for o in opportunities %}
+        <tr>
+          <td><a href="{{ url_for('crm.opportunity_edit', oid=o.id) }}">{{ o.name }}</a></td>
+          <td class="num">¥{{ o.amount|money }}</td>
+          <td>{{ badge(o.stage) }}</td>
+          <td class="sub">{{ o.expected_date or '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}{{ empty('该客户暂无商机') }}{% endif %}
+</div>
+
+<div class="card">
+  <div class="card-head"><div class="card-title">合同（{{ contracts|length }}）</div></div>
+  {% if contracts %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>合同编号</th><th class="num">金额</th><th>状态</th><th>签署日期</th></tr></thead>
+      <tbody>
+        {% for ct in contracts %}
+        <tr>
+          <td>{{ ct.contract_no }}</td>
+          <td class="num">¥{{ ct.amount|money }}</td>
+          <td>{{ badge(ct.status) }}</td>
+          <td class="sub">{{ ct.sign_date or '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}{{ empty('该客户暂无合同') }}{% endif %}
+</div>
+
+<div class="card">
+  <div class="card-head"><div class="card-title">销售订单（{{ orders|length }}）</div></div>
+  {% if orders %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>订单号</th><th class="num">金额</th><th>状态</th><th>创建时间</th></tr></thead>
+      <tbody>
+        {% for so in orders %}
+        <tr>
+          <td><a href="{{ url_for('erp.sales_order_detail', so_id=so.id) }}">{{ so.so_no }}</a></td>
+          <td class="num">¥{{ so.total_amount|money }}</td>
+          <td>{{ badge(so.status) }}</td>
+          <td class="sub">{{ so.created_at|date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}{{ empty('该客户暂无销售订单') }}{% endif %}
+</div>
+{% endblock %}

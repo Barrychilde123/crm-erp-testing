@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge %}
+{% block title %}{{ po.po_no }} · 采购订单 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}ERP / 采购订单 / 详情{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{{ po.po_no }} {{ badge(po.status) }}</h1>
+    <div class="page-sub">采购订单详情 · 创建于 {{ po.created_at|date }}</div>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="{{ url_for('erp.purchase_orders') }}">返回列表</a>
+    {% if po.status == 'draft' %}
+    <form method="post" action="{{ url_for('erp.purchase_order_confirm', po_id=po.id) }}" style="display:inline;">
+      <button class="btn btn-primary" type="submit">确认订单</button>
+    </form>
+    {% elif po.status == 'confirmed' %}
+    <form method="post" action="{{ url_for('erp.purchase_order_receive', po_id=po.id) }}" style="display:inline;" onsubmit="return confirm('确认收货？收货后库存将增加。')">
+      <button class="btn btn-primary" type="submit">收货入库</button>
+    </form>
+    {% endif %}
+    {% if po.status in ['draft', 'confirmed'] %}
+    <form method="post" action="{{ url_for('erp.purchase_order_cancel', po_id=po.id) }}" style="display:inline;" onsubmit="return confirm('确认取消该采购订单？')">
+      <button class="btn btn-danger" type="submit">取消订单</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="info-grid">
+    <div class="info-item"><div class="label">供应商</div><div class="value">{{ po.supplier_name }}</div></div>
+    <div class="info-item"><div class="label">供应商联系人</div><div class="value">{{ po.supplier_contact or '-' }}</div></div>
+    <div class="info-item"><div class="label">供应商电话</div><div class="value">{{ po.supplier_phone or '-' }}</div></div>
+    <div class="info-item"><div class="label">创建人</div><div class="value">{{ po.creator_name or '-' }}</div></div>
+    <div class="info-item"><div class="label">创建时间</div><div class="value">{{ po.created_at|date }}</div></div>
+    <div class="info-item"><div class="label">收货时间</div><div class="value">{{ po.received_at|date if po.received_at else '-' }}</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head"><div class="card-title">采购明细</div></div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>产品</th><th>SKU</th><th class="num">数量</th><th class="num">单价</th><th class="num">小计</th></tr></thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td class="strong">{{ item.product_name }}</td>
+          <td class="sub">{{ item.sku }}</td>
+          <td class="num">{{ item.qty }}</td>
+          <td class="num">¥{{ item.price|money }}</td>
+          <td class="num">¥{{ (item.qty * item.price)|money }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><td colspan="4" class="num strong">合计</td><td class="num strong" style="color:var(--blue);">¥{{ po.total_amount|money }}</td></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endblock %}

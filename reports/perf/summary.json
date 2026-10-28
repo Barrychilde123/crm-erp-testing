@@ -1,0 +1,117 @@
+{
+  "total": 600,
+  "success": 600,
+  "error_rate": 0.0,
+  "duration_s": 10.85,
+  "tps": 55.3,
+  "samples": {
+    "POST /api/login": {
+      "count": 200,
+      "avg_ms": 147.3,
+      "p95_ms": 168.0,
+      "min_ms": 121.0,
+      "max_ms": 195.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=启明": {
+      "count": 20,
+      "avg_ms": 5.9,
+      "p95_ms": 9.0,
+      "min_ms": 3.0,
+      "max_ms": 11.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "POST /api/customers (write)": {
+      "count": 200,
+      "avg_ms": 7.6,
+      "p95_ms": 15.0,
+      "min_ms": 3.0,
+      "max_ms": 227.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=恒远": {
+      "count": 20,
+      "avg_ms": 7.2,
+      "p95_ms": 14.0,
+      "min_ms": 4.0,
+      "max_ms": 18.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=星河": {
+      "count": 20,
+      "avg_ms": 4.2,
+      "p95_ms": 7.0,
+      "min_ms": 3.0,
+      "max_ms": 8.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=蓝海": {
+      "count": 20,
+      "avg_ms": 5.0,
+      "p95_ms": 8.0,
+      "min_ms": 3.0,
+      "max_ms": 11.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=智能": {
+      "count": 20,
+      "avg_ms": 4.5,
+      "p95_ms": 7.0,
+      "min_ms": 3.0,
+      "max_ms": 7.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=物流": {
+      "count": 20,
+      "avg_ms": 4.3,
+      "p95_ms": 6.0,
+      "min_ms": 3.0,
+      "max_ms": 7.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=制造": {
+      "count": 20,
+      "avg_ms": 5.6,
+      "p95_ms": 9.0,
+      "min_ms": 3.0,
+      "max_ms": 13.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=科技": {
+      "count": 20,
+      "avg_ms": 5.1,
+      "p95_ms": 9.0,
+      "min_ms": 3.0,
+      "max_ms": 11.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=医疗": {
+      "count": 20,
+      "avg_ms": 4.8,
+      "p95_ms": 7.0,
+      "min_ms": 3.0,
+      "max_ms": 11.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    },
+    "GET /api/customers?q=能源": {
+      "count": 20,
+      "avg_ms": 5.4,
+      "p95_ms": 10.0,
+      "min_ms": 3.0,
+      "max_ms": 10.0,
+      "errors": 0,
+      "error_rate_pct": 0.0
+    }
+  }
+}

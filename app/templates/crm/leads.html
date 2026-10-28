@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "macros.html" import badge, empty, page_head %}
+{% block title %}线索管理 · 启明 CRM/ERP{% endblock %}
+{% block breadcrumb %}CRM / 线索管理{% endblock %}
+{% block content %}
+{% call page_head('线索管理', '记录潜在客户，转化为客户与商机') %}
+  <form class="search-form" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="搜索线索 / 联系人 / 电话">
+    <select class="form-control" name="status">
+      <option value="">全部状态</option>
+      {% for s in ['new', 'contacted', 'qualified', 'converted', 'lost'] %}
+      <option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|status_text }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-secondary" type="submit">搜索</button>
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('crm.lead_new') }}">+ 新建线索</a>
+{% endcall %}
+
+<div class="card">
+  {% if leads %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>线索名称</th><th>联系人</th><th>电话</th><th>来源</th><th>负责人</th><th>状态</th><th>创建时间</th><th style="width:170px;">操作</th></tr></thead>
+      <tbody>
+        {% for l in leads %}
+        <tr>
+          <td class="strong">{{ l.name }}</td>
+          <td>{{ l.contact or '-' }}</td>
+          <td>{{ l.phone or '-' }}</td>
+          <td>{{ l.source or '-' }}</td>
+          <td>{{ l.owner_name or '-' }}</td>
+          <td>{{ badge(l.status) }}</td>
+          <td class="sub">{{ l.created_at|date }}</td>
+          <td>
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('crm.lead_edit', lid=l.id) }}">编辑</a>
+            {% if l.status != 'converted' %}
+            <form method="post" action="{{ url_for('crm.lead_convert', lid=l.id) }}" style="display:inline;" onsubmit="return confirm('确认将该线索转化为客户和商机？')">
+              <button class="btn btn-ghost btn-sm" type="submit">转化</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ empty('暂无线索，点击右上角新建') }}
+  {% endif %}
+</div>
+{% endblock %}
