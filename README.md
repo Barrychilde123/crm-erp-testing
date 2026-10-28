@@ -1,4 +1,3 @@
-
 # CRM/ERP 测试实战：Flask + SQLite 测试靶场
 
 一个可运行的轻量级 **CRM/ERP 系统** + 一套完整测试体系：功能用例、接口测试、UI 自动化、性能压测、缺陷分析与测试报告。
@@ -169,17 +168,31 @@ jmeter -n -t perf/sales_order_load_test.jmx \
 5. **性能有数据**：登录、查询、创建三类场景的 TPS/P95/错误率，能解释瓶颈来源（密码哈希、SQLite 单机写锁）。
 
 ## 10. 系统截图 & 测试报告说明
-<img width="1416" height="861" alt="02-customers" src="https://github.com/user-attachments/assets/78def734-fe21-46d5-a728-73636be25d1e" />
-<img width="1416" height="861" alt="01-dashboard" src="https://github.com/user-attachments/assets/0ecb5ff2-eee8-45ab-a74a-c3c2f8229425" />
-<img width="1416" height="861" alt="00-login" src="https://github.com/user-attachments/assets/4730e160-c32c-460c-8bcc-5212cb7b6799" />
-<img width="1416" height="861" alt="04-products" src="https://github.com/user-attachments/assets/faee8354-bc14-4b65-afea-f448435b945a" />
-本项目已实现以下模块的 UI 自动化与接口自动化：
-- 登录模块验证
-- CRM客户管理（增删改查）
-- ERP订单流转及库存扣减
-- 接口联调与 Postman 集合
-（注：完整测试用例、测试计划、缺陷报告均在 docs/ 目录下，Allure 与 JMeter 报告生成逻辑<img width="1416" height="861" alt="03-opportunities" src="https://github.com/user-attachments/assets/d593420e-15dd-48f0-b25e-27123aead615" />
-见 ui/ 和 perf/ 目录）
+本项目基于真实的 SaaS 架构 CRM/ERP 系统（包含多租户隔离、权限矩阵、订单流转及库存扣减等复杂业务逻辑）进行了全面的功能、接口与自动化测试。
+
+### 自动化与性能测试报告
+**1. UI 自动化测试报告 (Allure)**
+基于 Python + Selenium + Pytest + POM 框架执行，14 个核心用例 100% 全部通过。
+<img width="1416" height="861" alt="11-users" src="https://github.com/user-attachments/assets/5141526b-90af-4cfe-9579-b12e0972abd4" />
+**2. 接口并发性能压测报告 (JMeter)**
+针对核心销售订单与客户查询接口进行 200 并发压测，错误率 0%，TPS 与响应时间表现优异。
+<img width="1416" height="861" alt="12-roles" src="https://github.com/user-attachments/assets/1ac58e90-15f8-4cee-8769-f8782bba0e55" />
+
+### 💻 核心业务系统界面展示
+**1. 系统登录与数据仪表盘**
+支持多角色登录，仪表盘直观展示核心商业指标。
+<img width="1416" height="861" alt="13-allure-report" src="https://github.com/user-attachments/assets/b6c541b8-f91e-4487-bdf1-33b88e3ff45c" />
+<img width="1416" height="861" alt="14-jmeter-report" src="https://github.com/user-attachments/assets/cd23a80a-624c-4364-8dfb-40e26aef3dfa" />
+
+**2. ERP 核心业务与库存管理**
+验证了订单流转、发货以及低库存预警等核心 ERP 数据一致性场景。
+<img width="1416" height="861" alt="04-products" src="https://github.com/user-attachments/assets/5ce2d067-73ef-45b6-ac9a-abdd3e403756" />
+
+**3. SaaS 核心架构：多角色权限矩阵**
+验证了基于 RBAC 的权限控制，确保不同角色（销售、仓管、财务）的数据隔离与越权防护。
+<img width="1416" height="861" alt="10-users" src="https://github.com/user-attachments/assets/17249246-b407-4a8b-ada7-490bf28ddcaa" />
+
+*(注：完整测试计划、测试用例、缺陷报告均在 `docs/` 目录下；自动化与压测底层脚本见 `ui/`、`api/` 和 `perf/` 目录)*
 
 ## 11. 已知限制
 
