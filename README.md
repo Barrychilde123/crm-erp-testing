@@ -102,7 +102,8 @@ crm-erp-testing/
 ├── docs/                        # 测试计划、用例、缺陷、报告、面试笔记
 ├── reports/                     # 执行报告
 ├── screenshots/                 # 系统截图
-└── scripts/                     # 辅助脚本
+├── scripts/                     # 辅助脚本
+└── 启动-CRM-ERP.bat             # Windows 一键启动
 ```
 
 ## 7. 快速开始
@@ -118,6 +119,17 @@ python -m app.seed
 python run.py
 # 浏览器访问 http://127.0.0.1:5000
 ```
+
+### Windows 一键启动
+
+双击项目根目录的 `启动-CRM-ERP.bat`：
+
+- 自动打开服务窗口和默认浏览器；
+- 地址：http://127.0.0.1:5000
+- 关闭服务窗口即可停止；
+- 首次启动或需要重置数据时，先在项目目录执行 `python -m app.seed`。
+
+> `.bat` 仅适用于 Windows；macOS / Linux 请使用上面的命令行方式。
 
 测试账号：
 
