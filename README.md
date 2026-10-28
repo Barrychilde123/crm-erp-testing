@@ -159,7 +159,7 @@ jmeter -n -t perf/sales_order_load_test.jmx \
   -l reports/perf/sales-result.jtl -e -o reports/perf/sales-html
 ```
 
-## 9. 项目亮点（面试可讲）
+## 9. 项目亮点
 
 1. **不是“只写用例”**：自己搭系统、造数据、设计 API/UI/性能测试，能完整讲清业务链路。
 2. **发现了真实并发缺陷**：8 个订单并发发货、库存只有 5，原实现可能超卖；通过条件状态迁移 + 原子扣减 + WAL/busy_timeout 修复，并用并发测试回归。
@@ -182,14 +182,14 @@ jmeter -n -t perf/sales_order_load_test.jmx \
   <img src="screenshots/09-invoices.png" width="48%">
 </p>
 
-### 测试报告
-
-<p align="center">
-  <img src="screenshots/13-allure-report.png" width="70%">
-</p>
-<p align="center">
-  <img src="screenshots/14-jmeter-report.png" width="70%">
-</p>
+## 10. 系统截图 & 测试报告说明
+由于本地环境限制，部分系统界面和测试报告未直接上传截图。
+本项目已实现以下模块的 UI 自动化与接口自动化：
+- 登录模块验证
+- CRM客户管理（增删改查）
+- ERP订单流转及库存扣减
+- 接口联调与 Postman 集合
+（注：完整测试用例、测试计划、缺陷报告均在 docs/ 目录下，Allure 与 JMeter 报告生成逻辑见 ui/ 和 perf/ 目录）
 
 ## 11. 已知限制
 
