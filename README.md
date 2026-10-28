@@ -167,21 +167,6 @@ jmeter -n -t perf/sales_order_load_test.jmx \
 4. **自动化框架**：POM 分层、pytest fixture、显式等待、失败截图、Allure 报告，脚本可维护。
 5. **性能有数据**：登录、查询、创建三类场景的 TPS/P95/错误率，能解释瓶颈来源（密码哈希、SQLite 单机写锁）。
 
-## 10. 系统截图
-
-<p align="center">
-  <img src="screenshots/00-login.png" width="48%">
-  <img src="screenshots/01-dashboard.png" width="48%">
-</p>
-<p align="center">
-  <img src="screenshots/03-opportunities.png" width="48%">
-  <img src="screenshots/06-sales-order-detail.png" width="48%">
-</p>
-<p align="center">
-  <img src="screenshots/08-inventory.png" width="48%">
-  <img src="screenshots/09-invoices.png" width="48%">
-</p>
-
 ## 10. 系统截图 & 测试报告说明
 由于本地环境限制，部分系统界面和测试报告未直接上传截图。
 本项目已实现以下模块的 UI 自动化与接口自动化：
